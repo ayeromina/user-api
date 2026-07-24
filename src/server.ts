@@ -47,6 +47,6 @@ app.post("/login", login);
 
 app.get("/profile", authMiddleware, getProfile);
 
-app.listen(PORT, () => { // Start the server and listen for requests
+app.listen(PORT, '0.0.0.0', () => { // Start the server and listen for requests
     console.log(`Server is running on port ${PORT}`); // Print a message in the terminal when server starts
 });
