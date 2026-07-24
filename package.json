@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "ts-node src/server.ts",
-    "api:test": "newman run postman/User_API.postman_collection.json -e \"postman/User API - Local.postman_environment.json\" -r htmlextra"
+    "api:test": "newman run postman/User_API.postman_collection.json -e \"postman/User API - Local.postman_environment.json\" -r htmlextra",
+    "api:test:ci": "newman run postman/User_API.postman_collection.json -e \"postman/User API - Local.postman_environment.json\" -r cli"
   },
   "keywords": [],
   "author": "",
