@@ -7,6 +7,7 @@ export async function createUser(req: any, res: any) {
     const { username, email, password } = req.body || {};
 
 
+
     // Check required fields
     const validation = validateRequiredFields(
     username,
@@ -44,7 +45,7 @@ if (!validation.valid) {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    console.log(hashedPassword);
+  
 
     // Create user
     const result = db.prepare(`

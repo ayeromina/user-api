@@ -1,0 +1,1644 @@
+{
+  "info": {
+    "_postman_id": "90fc0a2b-ec25-4e38-8072-500561837fbe",
+    "name": "My Collection",
+    "description": "### Welcome to Postman! This is your first collection. \n\nCollections are your starting point for building and testing APIs. You can use this one to:\n\n• Group related requests\n• Test your API in real-world scenarios\n• Document and share your requests\n\nUpdate the name and overview whenever you’re ready to make it yours.\n\n[Learn more about Postman Collections.](https://learning.postman.com/docs/collections/collections-overview/)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "56452683",
+    "_collection_link": "https://go.postman.co/collection/56452683-90fc0a2b-ec25-4e38-8072-500561837fbe?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "User API - Automated Tests",
+      "item": [
+        {
+          "name": "Health Check",
+          "item": [
+            {
+              "name": "Health",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "\r",
+                      "\r",
+                      "pm.test(\"API status is ok\", function () {\r",
+                      "    const response = pm.response.json();\r",
+                      "\r",
+                      "    pm.expect(response.status).to.eql(\"ok\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "http://localhost:3000/health",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "3000",
+                  "path": [
+                    "health"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "User Registration",
+          "item": [
+            {
+              "name": "Positive Tests",
+              "item": [
+                {
+                  "name": "Create User - Valid Data",
+                  "event": [
+                    {
+                      "listen": "prerequest",
+                      "script": {
+                        "exec": [
+                          "// Generate unique test data\r",
+                          "\r",
+                          "pm.environment.set(\r",
+                          "    \"testUsername\",\r",
+                          "    \"testuser_\" + Date.now()\r",
+                          ");\r",
+                          "\r",
+                          "pm.environment.set(\r",
+                          "    \"testEmail\",\r",
+                          "    \"test_\" + Date.now() + \"@example.com\"\r",
+                          ");\r",
+                          "\r",
+                          "pm.environment.set(\r",
+                          "    \"testPassword\",\r",
+                          "    \"Password123!\"\r",
+                          ");"
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                      }
+                    },
+                    {
+                      "listen": "test",
+                      "script": {
+                        "exec": [
+                          "pm.test(\"Status code is 201\", function () {\r",
+                          "    pm.response.to.have.status(201);\r",
+                          "});\r",
+                          "\r",
+                          "\r",
+                          "const jsonData = pm.response.json();\r",
+                          "\r",
+                          "\r",
+                          "pm.test(\"Response contains user id\", function () {\r",
+                          "    pm.expect(jsonData.id).to.exist;\r",
+                          "});\r",
+                          "\r",
+                          "\r",
+                          "pm.test(\"Username matches created user\", function () {\r",
+                          "    pm.expect(jsonData.username)\r",
+                          "        .to.eql(pm.environment.get(\"testUsername\"));\r",
+                          "});\r",
+                          "\r",
+                          "\r",
+                          "pm.test(\"Email matches created user\", function () {\r",
+                          "    pm.expect(jsonData.email)\r",
+                          "        .to.eql(pm.environment.get(\"testEmail\"));\r",
+                          "});\r",
+                          "\r",
+                          "\r",
+                          "// Save user id for later requests\r",
+                          "\r",
+                          "pm.environment.set(\r",
+                          "    \"userId\",\r",
+                          "    jsonData.id\r",
+                          ");\r",
+                          "\r",
+                          "pm.test(\"Password is not returned\", function () {\r",
+                          "    const jsonData = pm.response.json();\r",
+                          "\r",
+                          "    pm.expect(jsonData).to.not.have.property(\"password\");\r",
+                          "});"
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                      }
+                    }
+                  ],
+                  "request": {
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"username\": \"{{testUsername}}\",\r\n    \"email\": \"{{testEmail}}\",\r\n    \"password\": \"{{testPassword}}\"\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "http://localhost:3000/users",
+                      "protocol": "http",
+                      "host": [
+                        "localhost"
+                      ],
+                      "port": "3000",
+                      "path": [
+                        "users"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Created User - Verify Registration",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "exec": [
+                          "pm.test(\"Status code is 200\", function () {\r",
+                          "    pm.response.to.have.status(200);\r",
+                          "});\r",
+                          "const jsonData = pm.response.json();\r",
+                          "\r",
+                          "pm.test(\"User ID matches created user\", function () {\r",
+                          "    pm.expect(jsonData.id)\r",
+                          "        .to.eql(pm.environment.get(\"userId\"));\r",
+                          "});\r",
+                          "\r",
+                          "pm.test(\"Username matches\", function () {\r",
+                          "    pm.expect(jsonData.username)\r",
+                          "        .to.eql(pm.environment.get(\"testUsername\"));\r",
+                          "});\r",
+                          "\r",
+                          "pm.test(\"Email matches\", function () {\r",
+                          "    pm.expect(jsonData.email)\r",
+                          "        .to.eql(pm.environment.get(\"testEmail\"));\r",
+                          "});\r",
+                          "\r",
+                          "pm.test(\"Password is not returned\", function () {\r",
+                          "    pm.expect(jsonData).to.not.have.property(\"password\");\r",
+                          "});"
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                      }
+                    }
+                  ],
+                  "request": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{baseUrl}}/users/{{userId}}",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "users",
+                        "{{userId}}"
+                      ]
+                    },
+                    "description": "Verifies that a newly created user is stored correctly.\n\nChecks:\n\n- User can be retrieved by ID\n    \n- Returned ID matches created user\n    \n- Username matches created data\n    \n- Email matches created data\n    \n- Password is not exposed"
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "Negative Tests",
+              "item": [
+                {
+                  "name": "Duplicate Email",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "exec": [
+                          "const jsonData = pm.response.json();\r",
+                          "pm.test(\"Status code is 409\", function () {\r",
+                          "    pm.response.to.have.status(409);\r",
+                          "});\r",
+                          "\r",
+                          "pm.test(\"Response contains error message\", function () {\r",
+                          "   \r",
+                          "    pm.expect(jsonData).to.have.property(\"message\");\r",
+                          "});\r",
+                          "\r",
+                          "pm.test(\"Error message contains expected value\", function () {\r",
+                          "  \r",
+                          "    pm.expect(jsonData.message)\r",
+                          "        .to.include(\"Email already exists.\");\r",
+                          "});"
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                      }
+                    }
+                  ],
+                  "request": {
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"username\": \"duplicate_test_user\",\r\n    \"email\": \"{{testEmail}}\",\r\n    \"password\": \"{{testPassword}}\"\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/users",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "users"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Missing Email",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "exec": [
+                          "const jsonData = pm.response.json();\r",
+                          "\r",
+                          "pm.test(\"Status code is 400\", function () {\r",
+                          "    pm.response.to.have.status(400);\r",
+                          "});\r",
+                          "\r",
+                          "pm.test(\"Response contains error message\", function () {\r",
+                          "    pm.expect(jsonData).to.have.property(\"message\");\r",
+                          "});\r",
+                          "\r",
+                          "pm.test(\"Error message contains expected value\", function () {\r",
+                          "    pm.expect(jsonData.message)\r",
+                          "        .to.include(\"Username, email and password are required\");\r",
+                          "});"
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                      }
+                    }
+                  ],
+                  "request": {
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"username\": \"missing_email_test\",\r\n    \"password\": \"{{testPassword}}\"\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/users",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "users"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Missing Username",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "exec": [
+                          "const jsonData = pm.response.json();\r",
+                          "\r",
+                          "pm.test(\"Status code is 400\", function () {\r",
+                          "    pm.response.to.have.status(400);\r",
+                          "});\r",
+                          "\r",
+                          "pm.test(\"Response contains error message\", function () {\r",
+                          "    pm.expect(jsonData).to.have.property(\"message\");\r",
+                          "});\r",
+                          "\r",
+                          "pm.test(\"Error message contains expected value\", function () {\r",
+                          "    pm.expect(jsonData.message)\r",
+                          "    .to.include(\"Username, email and password are required\");\r",
+                          "});\r",
+                          ""
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                      }
+                    }
+                  ],
+                  "request": {
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n  \"email\": \"test@example.com\",\r\n  \"password\": \"Password123!\"\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/users",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "users"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Missing Password",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "exec": [
+                          "const jsonData = pm.response.json();\r",
+                          "\r",
+                          "pm.test(\"Status code is 400\", function () {\r",
+                          "    pm.response.to.have.status(400);\r",
+                          "});\r",
+                          "\r",
+                          "pm.test(\"Response contains error message\", function () {\r",
+                          "    pm.expect(jsonData).to.have.property(\"message\");\r",
+                          "});\r",
+                          "\r",
+                          "pm.test(\"Error message contains expected value\", function () {\r",
+                          "    pm.expect(jsonData.message)\r",
+                          "    .to.include(\"Username, email and password are required\");\r",
+                          "});\r",
+                          ""
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                      }
+                    }
+                  ],
+                  "request": {
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n  \"username\": \"testuser\",\r\n  \"email\": \"test@example.com\"\r\n}"
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/users",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "users"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Invalid Email Forrmat",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "exec": [
+                          "const jsonData = pm.response.json();\r",
+                          "\r",
+                          "pm.test(\"Status code is 400\", function () {\r",
+                          "    pm.response.to.have.status(400);\r",
+                          "});\r",
+                          "\r",
+                          "pm.test(\"Response contains error message\", function () {\r",
+                          "    pm.expect(jsonData).to.have.property(\"message\");\r",
+                          "});\r",
+                          "\r",
+                          "pm.test(\"Error message contains expected value\", function () {\r",
+                          "    pm.expect(jsonData.message)\r",
+                          "    .to.include(\"Email format is invalid\");\r",
+                          "});"
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                      }
+                    }
+                  ],
+                  "request": {
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"username\": \"invalid_email_test\",\r\n    \"email\": \"wrong-email\",\r\n    \"password\": \"Password123!\"\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/users",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "users"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Username Too Short",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "exec": [
+                          "const jsonData = pm.response.json();\r",
+                          "\r",
+                          "pm.test(\"Status code is 400\", function () {\r",
+                          "    pm.response.to.have.status(400);\r",
+                          "});\r",
+                          "\r",
+                          "pm.test(\"Response contains error message\", function () {\r",
+                          "    pm.expect(jsonData).to.have.property(\"message\");\r",
+                          "});\r",
+                          "\r",
+                          "pm.test(\"Error message contains expected value\", function () {\r",
+                          "    pm.expect(jsonData.message)\r",
+                          "    .to.include(\"Username must be at least 3 characters long\");\r",
+                          "});"
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                      }
+                    }
+                  ],
+                  "request": {
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"username\": \"ab\",\r\n    \"email\": \"valid_email@test.com\",\r\n    \"password\": \"Password123!\"\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/users",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "users"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Password Too Short",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "exec": [
+                          "const jsonData = pm.response.json();\r",
+                          "\r",
+                          "pm.test(\"Status code is 400\", function () {\r",
+                          "    pm.response.to.have.status(400);\r",
+                          "});\r",
+                          "\r",
+                          "pm.test(\"Response contains error message\", function () {\r",
+                          "    pm.expect(jsonData).to.have.property(\"message\");\r",
+                          "});\r",
+                          "\r",
+                          "pm.test(\"Error message contains expected value\", function () {\r",
+                          "    pm.expect(jsonData.message)\r",
+                          "        .to.include(\"Password must be at least 8 characters long and contain uppercase, lowercase, number and special character\");\r",
+                          "});"
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                      }
+                    }
+                  ],
+                  "request": {
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"username\": \"{{testUsername}}\",\r\n    \"email\": \"{{testEmail}}\",\r\n    \"password\": \"Pass\"\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/users",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "users"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Password Missing Lowercase",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "exec": [
+                          "const jsonData = pm.response.json();\r",
+                          "\r",
+                          "pm.test(\"Status code is 400\", function () {\r",
+                          "    pm.response.to.have.status(400);\r",
+                          "});\r",
+                          "\r",
+                          "pm.test(\"Response contains error message\", function () {\r",
+                          "    pm.expect(jsonData).to.have.property(\"message\");\r",
+                          "});\r",
+                          "\r",
+                          "pm.test(\"Error message contains expected value\", function () {\r",
+                          "    pm.expect(jsonData.message)\r",
+                          "    .to.include(\"Password must be at least 8 characters long and contain uppercase, lowercase, number and special character\");\r",
+                          "});"
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                      }
+                    }
+                  ],
+                  "request": {
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"username\": \"missing_lowercase\",\r\n    \"email\": \"missing_lowercase@test.com\",\r\n    \"password\": \"PASSWORD123!\"\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/users",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "users"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Password Missing Uppercase",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "exec": [
+                          "const jsonData = pm.response.json();\r",
+                          "\r",
+                          "pm.test(\"Status code is 400\", function () {\r",
+                          "    pm.response.to.have.status(400);\r",
+                          "});\r",
+                          "\r",
+                          "pm.test(\"Response contains error message\", function () {\r",
+                          "    pm.expect(jsonData).to.have.property(\"message\");\r",
+                          "});\r",
+                          "\r",
+                          "pm.test(\"Error message contains expected value\", function () {\r",
+                          "    pm.expect(jsonData.message)\r",
+                          "    .to.include(\"Password must be at least 8 characters long and contain uppercase, lowercase, number and special character\");\r",
+                          "});"
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                      }
+                    }
+                  ],
+                  "request": {
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"username\": \"missing_uppercase\",\r\n    \"email\": \"missing_uppercase@test.com\",\r\n    \"password\": \"password123!\"\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/users",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "users"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Password Missing Number",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "exec": [
+                          "const jsonData = pm.response.json();\r",
+                          "\r",
+                          "pm.test(\"Status code is 400\", function () {\r",
+                          "    pm.response.to.have.status(400);\r",
+                          "});\r",
+                          "\r",
+                          "pm.test(\"Response contains error message\", function () {\r",
+                          "    pm.expect(jsonData).to.have.property(\"message\");\r",
+                          "});\r",
+                          "\r",
+                          "pm.test(\"Error message contains expected value\", function () {\r",
+                          "    pm.expect(jsonData.message)\r",
+                          "    .to.include(\"Password must be at least 8 characters long and contain uppercase, lowercase, number and special character\");\r",
+                          "});"
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                      }
+                    }
+                  ],
+                  "request": {
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"username\": \"missing_number\",\r\n    \"email\": \"missing_number@test.com\",\r\n    \"password\": \"Password!\"\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/users",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "users"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Password Missing Special Character",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "exec": [
+                          "const jsonData = pm.response.json();\r",
+                          "\r",
+                          "pm.test(\"Status code is 400\", function () {\r",
+                          "    pm.response.to.have.status(400);\r",
+                          "});\r",
+                          "\r",
+                          "pm.test(\"Response contains error message\", function () {\r",
+                          "    pm.expect(jsonData).to.have.property(\"message\");\r",
+                          "});\r",
+                          "\r",
+                          "pm.test(\"Error message contains expected value\", function () {\r",
+                          "    pm.expect(jsonData.message)\r",
+                          "    .to.include(\"Password must be at least 8 characters long and contain uppercase, lowercase, number and special character\");\r",
+                          "});"
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                      }
+                    }
+                  ],
+                  "request": {
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"username\": \"missing_special\",\r\n    \"email\": \"missing_special@test.com\",\r\n    \"password\": \"Password123\"\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/users",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "users"
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Authentication",
+          "item": [
+            {
+              "name": "Positive Tests",
+              "item": [
+                {
+                  "name": "Login - Valid Credentials",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "exec": [
+                          "const jsonData = pm.response.json();\r",
+                          "\r",
+                          "pm.test(\"Status code is 200\", function () {\r",
+                          "    pm.response.to.have.status(200);\r",
+                          "});\r",
+                          "\r",
+                          "\r",
+                          "pm.test(\"Response contains success message\", function () {\r",
+                          "    pm.expect(jsonData).to.have.property(\"message\");\r",
+                          "});\r",
+                          "\r",
+                          "\r",
+                          "pm.test(\"Login message matches expected value\", function () {\r",
+                          "    pm.expect(jsonData.message)\r",
+                          "        .to.include(\"Login successful\");\r",
+                          "});\r",
+                          "\r",
+                          "\r",
+                          "pm.test(\"Response contains token\", function () {\r",
+                          "    pm.expect(jsonData).to.have.property(\"token\");\r",
+                          "});\r",
+                          "\r",
+                          "\r",
+                          "pm.test(\"Save auth token\", function () {\r",
+                          "    pm.environment.set(\"authToken\", jsonData.token);\r",
+                          "});"
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                      }
+                    }
+                  ],
+                  "request": {
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"email\": \"{{testEmail}}\",\r\n    \"password\": \"{{testPassword}}\"\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/login",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "login"
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "Negative Tests",
+              "item": [
+                {
+                  "name": "Login - Wrong Password",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "exec": [
+                          "const jsonData = pm.response.json();\r",
+                          "\r",
+                          "pm.test(\"Status code is 401\", function () {\r",
+                          "    pm.response.to.have.status(401);\r",
+                          "});\r",
+                          "\r",
+                          "pm.test(\"Response contains error message\", function () {\r",
+                          "    pm.expect(jsonData).to.have.property(\"message\");\r",
+                          "    });\r",
+                          "\r",
+                          "pm.test(\"Error message contains expected value\", function () {\r",
+                          "    pm.expect(jsonData.message).to.include(\"Invalid email or password.\");\r",
+                          "})"
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                      }
+                    }
+                  ],
+                  "request": {
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"email\": \"{{testEmail}}\",\r\n    \"password\": \"wrongpassword\"\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/login",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "login"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Missing Password",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "exec": [
+                          "const jsonData = pm.response.json();\r",
+                          "\r",
+                          "pm.test(\"Status code is 400\", function () {\r",
+                          "    pm.response.to.have.status(400);\r",
+                          "});\r",
+                          "\r",
+                          "pm.test(\"Response contains error message\", function () {\r",
+                          "    pm.expect(jsonData).to.have.property(\"message\");\r",
+                          "    });\r",
+                          "\r",
+                          "pm.test(\"Error message contains expected value\", function () {\r",
+                          "    pm.expect(jsonData.message).to.include(\"Email and password are required.\");\r",
+                          "});"
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                      }
+                    }
+                  ],
+                  "request": {
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"email\": \"{{testEmail}}\",\r\n    \"password\": \"\"\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/login",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "login"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Missing Email",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "exec": [
+                          "const jsonData = pm.response.json();\r",
+                          "\r",
+                          "pm.test(\"Status code is 400\", function () {\r",
+                          "    pm.response.to.have.status(400);\r",
+                          "});\r",
+                          "\r",
+                          "pm.test(\"Response contains error message\", function () {\r",
+                          "    pm.expect(jsonData).to.have.property(\"message\");\r",
+                          "});\r",
+                          "\r",
+                          "pm.test(\"Error message contains expected value\", function () {\r",
+                          "    pm.expect(jsonData.message).to.include(\"Email and password are required.\");\r",
+                          "});"
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                      }
+                    }
+                  ],
+                  "request": {
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"email\": \"\",\r\n    \"password\": \"{{testPassword}}\"\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/login",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "login"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Invalid Email",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "exec": [
+                          "const jsonData = pm.response.json();\r",
+                          "\r",
+                          "pm.test(\"Status code is 401\", function () {\r",
+                          "    pm.response.to.have.status(401);\r",
+                          "});\r",
+                          "\r",
+                          "pm.test(\"Response contains error message\", function () {\r",
+                          "    pm.expect(jsonData).to.have.property(\"message\");\r",
+                          "});\r",
+                          "\r",
+                          "pm.test(\"Error message contains expected value\", function () {\r",
+                          "    pm.expect(jsonData.message).to.include(\"Invalid email or password.\");\r",
+                          "});"
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                      }
+                    }
+                  ],
+                  "request": {
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"email\": \"user_does_not_exist@test.com\",\r\n    \"password\": \"{{testPassword}}\"\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/login",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "login"
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Protected Routes",
+          "item": [
+            {
+              "name": "Positive Tests",
+              "item": [
+                {
+                  "name": "Get Profile - Valid Token",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "exec": [
+                          "const jsonData = pm.response.json();\r",
+                          "\r",
+                          "pm.test(\"Status code is 200\", function () {\r",
+                          "    pm.response.to.have.status(200);\r",
+                          "});\r",
+                          "\r",
+                          "pm.test(\"Response contains success message\", function () {\r",
+                          "    pm.expect(jsonData).to.have.property(\"message\");\r",
+                          "});\r",
+                          "\r",
+                          "pm.test(\"Message contains expected value\", function () {\r",
+                          "    pm.expect(jsonData.message).to.include(\"Profile accessed successfully.\");\r",
+                          "});\r",
+                          "\r",
+                          "pm.test(\"Response contains user data\", function () {\r",
+                          "    pm.expect(jsonData).to.have.property(\"user\");\r",
+                          "});\r",
+                          "\r",
+                          "pm.test(\"User data contsins ID\", function () {\r",
+                          "    pm.expect(jsonData.user).to.have.property(\"id\");\r",
+                          "});\r",
+                          "\r",
+                          "pm.test(\"User data contains email\", function () {\r",
+                          "    pm.expect(jsonData.user).to.have.property(\"email\");\r",
+                          "});\r",
+                          "\r",
+                          "pm.test(\"Password is not exposed\", function () {\r",
+                          "    pm.expect(jsonData.user).to.not.have.property(\"password\");\r",
+                          "});\r",
+                          "\r",
+                          ""
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                      }
+                    }
+                  ],
+                  "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                  },
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{authToken}}",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/profile",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "profile"
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "Negative Tests",
+              "item": [
+                {
+                  "name": "Missing Token",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "exec": [
+                          "const jsonData = pm.response.json();\r",
+                          "\r",
+                          "pm.test(\"Status code is 401\", function () {\r",
+                          "    pm.response.to.have.status(401);\r",
+                          "});\r",
+                          "\r",
+                          "pm.test(\"Response contains error message\", function () {\r",
+                          "    pm.expect(jsonData).to.have.property(\"message\");\r",
+                          "});\r",
+                          "\r",
+                          "pm.test(\"Error message contains expected value\", function () {\r",
+                          "    pm.expect(jsonData.message).to.include(\"Authorization token missing.\")\r",
+                          "});\r",
+                          ""
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                      }
+                    }
+                  ],
+                  "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                  },
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{authToken}}",
+                        "type": "text",
+                        "disabled": true
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": ""
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/profile",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "profile"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Invalid Token",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "exec": [
+                          "const jsonData = pm.response.json();\r",
+                          "\r",
+                          "pm.test(\"Status code is 401\", function () {\r",
+                          "    pm.response.to.have.status(401);\r",
+                          "});\r",
+                          "\r",
+                          "pm.test(\"Response contains error message\", function () {\r",
+                          "    pm.expect(jsonData).to.have.property(\"message\");\r",
+                          "});\r",
+                          "\r",
+                          "pm.test(\"Error message contains expected value\", function () {\r",
+                          "    pm.expect(jsonData.message).to.include(\"Invalid token.\")\r",
+                          "});\r",
+                          ""
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                      }
+                    }
+                  ],
+                  "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                  },
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{authToken}}",
+                        "type": "text",
+                        "disabled": true
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer abc123",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/profile",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "profile"
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "User Management",
+          "item": [
+            {
+              "name": "Get All Users",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const jsonData = pm.response.json();\r",
+                      "\r",
+                      "pm.test(\"Status code is 200\", function () {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "\r",
+                      "\r",
+                      "pm.test(\"Response is an array\", function () {\r",
+                      "    pm.expect(jsonData).to.be.an(\"array\");\r",
+                      "});\r",
+                      "\r",
+                      "\r",
+                      "pm.test(\"Users contain required fields\", function () {\r",
+                      "    if (jsonData.length > 0) {\r",
+                      "        pm.expect(jsonData[0]).to.have.property(\"id\");\r",
+                      "        pm.expect(jsonData[0]).to.have.property(\"username\");\r",
+                      "        pm.expect(jsonData[0]).to.have.property(\"email\");\r",
+                      "    }\r",
+                      "});\r",
+                      "\r",
+                      "\r",
+                      "pm.test(\"Password is not exposed\", function () {\r",
+                      "    if (jsonData.length > 0) {\r",
+                      "        pm.expect(jsonData[0]).to.not.have.property(\"password\");\r",
+                      "    }\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/users",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update User",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const jsonData = pm.response.json();\r",
+                      "\r",
+                      "pm.test(\"Status code is 200\", function () {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Response contains updated user data\", function () {\r",
+                      "    pm.expect(jsonData).to.have.property(\"id\");\r",
+                      "    pm.expect(jsonData).to.have.property(\"username\");\r",
+                      "    pm.expect(jsonData).to.have.property(\"email\");\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Username was updated\", function () {\r",
+                      "    pm.expect(jsonData.username).to.eql(\"updated_username\");\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Email was updated\", function () {\r",
+                      "    pm.expect(jsonData.email).to.eql(\"updated_email@test.com\");\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Password is not exposed\", function () {\r",
+                      "    pm.expect(jsonData).to.not.have.property(\"password\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"username\": \"updated_username\",\r\n    \"email\": \"updated_email@test.com\",\r\n    \"password\": \"Password123!\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/users/{{userId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users",
+                    "{{userId}}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "User Not Found",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const jsonData = pm.response.json();\r",
+                      "\r",
+                      "pm.test(\"Status code is 404\", function () {\r",
+                      "    pm.response.to.have.status(404);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Response contains error message\", function () {\r",
+                      "    pm.expect(jsonData).to.have.property(\"message\");\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Error message contains expected value\", function (){\r",
+                      "    pm.expect(jsonData.message).to.eql(\"User not found\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"username\": \"updated_username\",\r\n    \"email\": \"updated_email@test.com\",\r\n    \"password\": \"Password123!\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/users/99999",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users",
+                    "99999"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Partially Update User",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const jsonData = pm.response.json();\r",
+                      "\r",
+                      "pm.test(\"Status code is 200\", function () {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Response contains updated user data\", function () {\r",
+                      "    pm.expect(jsonData).to.have.property(\"id\");\r",
+                      "    pm.expect(jsonData).to.have.property(\"username\");\r",
+                      "    pm.expect(jsonData).to.have.property(\"email\");\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Username was updated\", function () {\r",
+                      "    pm.expect(jsonData.username)\r",
+                      "        .to.eql(\"patched_username\");\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Email remained unchanged\", function () {\r",
+                      "    pm.expect(jsonData.email)\r",
+                      "        .to.eql(\"updated_email@test.com\");\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Password is not exposed\", function () {\r",
+                      "    pm.expect(jsonData).to.not.have.property(\"password\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"username\": \"patched_username\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/users/{{userId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users",
+                    "{{userId}}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delete User",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const jsonData = pm.response.json();\r",
+                      "\r",
+                      "pm.test(\"Status code is 200\", function () {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Response contains success message\", function () {\r",
+                      "    pm.expect(jsonData).to.have.property(\"message\");\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Message contains expected value\", function () {\r",
+                      "    pm.expect(jsonData.message)\r",
+                      "        .to.include(\"User deleted successfully\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/users/{{userId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users",
+                    "{{userId}}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get Deleted User",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const jsonData = pm.response.json();\r",
+                      "\r",
+                      "pm.test(\"Status code is 404\", function () {\r",
+                      "    pm.response.to.have.status(404);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Response contains error message\", function () {\r",
+                      "    pm.expect(jsonData).to.have.property(\"message\");\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Error message contains expected value\", function () {\r",
+                      "    pm.expect(jsonData.message).to.include(\"User not found\");\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": ""
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/users/{{userId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users",
+                    "{{userId}}"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ],
+      "description": "# User API\n\nA REST API built with **TypeScript**, **Express**, **SQLite**, **bcrypt**, and **JWT authentication**.\n\nThis project was created to practice backend development, REST API design, and API testing with Postman. It demonstrates user management, authentication, input validation, and a structured API testing approach.\n\n---\n\n## Features\n\n### User Management\n\n- Create user\n    \n- Get all users\n    \n- Get user by ID\n    \n- Update user (PUT)\n    \n- Partially update user (PATCH)\n    \n- Delete user\n    \n\n### Authentication\n\n- User login\n    \n- Password hashing with bcrypt\n    \n- JWT authentication\n    \n- Protected profile endpoint\n    \n\n### Validation\n\n- Required field validation\n    \n- Username length validation\n    \n- Email format validation\n    \n- Password complexity validation\n    \n- Duplicate email validation\n    \n\n---\n\n## Technologies\n\n- Node.js\n    \n- TypeScript\n    \n- Express.js\n    \n- SQLite\n    \n- better-sqlite3\n    \n- bcrypt\n    \n- JSON Web Token (JWT)\n    \n- Postman\n    \n\n---\n\n## API Endpoints\n\n### Health Check\n\n| Method | Endpoint |\n| --- | --- |\n| GET | `/health` |\n\n### Users\n\n| Method | Endpoint | Description |\n| --- | --- | --- |\n| POST | `/users` | Create user |\n| GET | `/users` | Get all users |\n| GET | `/users/:id` | Get user by ID |\n| PUT | `/users/:id` | Update user |\n| PATCH | `/users/:id` | Partially update user |\n| DELETE | `/users/:id` | Delete user |\n\n### Authentication\n\n| Method | Endpoint |\n| --- | --- |\n| POST | `/login` |\n| GET | `/profile` _(JWT required)_ |\n\n---\n\n## Postman Test Collection\n\nA complete Postman collection is included to validate the API.\n\n### Covered Scenarios\n\n#### Health Check\n\n- API availability\n    \n\n#### User Registration\n\nPositive test:\n\n- Create user with valid data\n    \n\nNegative tests:\n\n- Duplicate email\n    \n- Missing username\n    \n- Missing email\n    \n- Missing password\n    \n- Invalid email format\n    \n- Username too short\n    \n- Password too short\n    \n- Password missing uppercase letter\n    \n- Password missing lowercase letter\n    \n- Password missing number\n    \n- Password missing special character\n    \n\n#### User Management\n\n- Get all users\n    \n- Update user\n    \n- Update non-existing user\n    \n- Patch user\n    \n- Delete user\n    \n- Verify deleted user\n    \n\n#### Authentication\n\nPositive test:\n\n- Login with valid credentials\n    \n\nNegative tests:\n\n- Wrong password\n    \n- Unknown email\n    \n- Missing email\n    \n- Missing password\n    \n\n#### Protected Routes\n\nPositive test:\n\n- Access profile with valid JWT\n    \n\nNegative tests:\n\n- Missing token\n    \n- Invalid token\n    \n\n---\n\n## Installation\n\nClone the repository:\n\n``` bash\ngit clone https://github.com/ayeromina/user-api.git\n\n ```\n\nGo to the project folder:\n\n``` bash\ncd user-api\n\n ```\n\nInstall dependencies:\n\n``` bash\nnpm install\n\n ```\n\n---\n\n## Environment Variables\n\nCreate a `.env` file in the project root:\n\n``` env\nJWT_SECRET=your_secret_key\n\n ```\n\n---\n\n## Running the Project\n\nStart the development server:\n\n``` bash\nnpm run dev\n\n ```\n\nThe API runs on:\n\n```\nhttp://localhost:3000\n\n ```\n\n---\n\n## Project Structure\n\n```\nuser-api/\n│\n├── src/\n├── README.md\n├── package.json\n├── tsconfig.json\n└── postman/\n    ├── User API.postman_collection.json\n    └── User API.postman_environment.json\n\n ```\n\n---\n\n## Future Improvements\n\n- Newman CLI integration\n    \n- GitHub Actions CI/CD\n    \n- Automated API testing pipeline\n    \n- Test reporting\n    \n- Database migrations\n    \n- Docker support\n    \n\n---\n\n## Author\n\n**Anastasiia Yeromina**\n\nQA Engineer with 5 years of experience, currently expanding into Technical QA, API testing, backend development, and test automation."
+    }
+  ]
+}
