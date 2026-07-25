@@ -31,7 +31,7 @@ jobs:
       - name: Start API server
         run: npm run dev &
         env: 
-         JWT_SECRET: ${{ vars.JWTTOKEN_SECRET }}
+         JWT_SECRET: ${{ vars.JWT_SECRET }}
 
       - name: Wait for API
         run: sleep 5
