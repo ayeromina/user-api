@@ -812,6 +812,8 @@
                       "listen": "test",
                       "script": {
                         "exec": [
+                          "console.log (pm.response.text());\r",
+                          "\r",
                           "const jsonData = pm.response.json();\r",
                           "\r",
                           "pm.test(\"Status code is 200\", function () {\r",
